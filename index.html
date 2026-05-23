@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generador EDT | Crea Estructuras de Trabajo</title>
+    <meta name="description" content="Generador visual de Diagramas EDT (Work Breakdown Structure). Crea estructuras de proyectos rápido, sin registro y expórtalas a PNG.">
+    <meta name="keywords" content="EDT, WBS, Project Management, Diagrama, Generador, Proyectos, Gratis">
+    <meta name="author" content="Aldair FC">
+
+    <link rel="icon" type="image/png" href="C:\Users\Hp\AppData\Local\Temp\MicrosoftEdgeDownloads\e9be4c38-8813-4355-94f0-d8eb9aa3acdf/icono.png">
+    <link rel="apple-touch-icon" href="icono.png"> <meta property="og:type" content="website">
+    <meta property="og:url" content="https://AQUI_IRÁ_TU_LINK_DE_GITHUB_PAGES.com/">
+    <meta property="og:title" content="Generador EDT Profesional">
+    <meta property="og:description" content="Crea tu Estructura de Desglose de Trabajo en segundos.">
+    <meta property="og:image" content="https://AQUI_IRÁ_TU_LINK_DE_GITHUB_PAGES.com/preview.png">
+
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Generador EDT Profesional">
+    <meta name="twitter:description" content="Crea tu Estructura de Desglose de Trabajo en segundos.">
+    <meta name="twitter:image" content="https://AQUI_IRÁ_TU_LINK_DE_GITHUB_PAGES.com/preview.png">
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+    <style>
+        /* --- ESTILOS ESTILO APPLE (NATIVOS Y LIMPIOS) --- */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body { 
+            /* Tipografía del sistema (San Francisco en Apple, Segoe en Windows) */
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
+            display: flex; height: 100vh; 
+            background-color: #F5F5F7; /* El gris suave característico de Apple */
+            color: #1D1D1F; /* Casi negro para mejor lectura */
+            overflow: hidden; 
+        }
+        
+        /* Barras de scroll elegantes */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #D1D1D6; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #AEAEB2; }
+
+        /* --- PANEL IZQUIERDO --- */
+        .panel-izquierdo {
+            width: 320px; min-width: 280px; max-width: 600px; 
+            background: #FFFFFF; display: flex; flex-direction: column; padding: 24px;
+            /* Sombra muy difusa y borde invisible */
+            box-shadow: 2px 0 24px rgba(0,0,0,0.04); z-index: 10;
+            flex-shrink: 0; border-right: 1px solid rgba(0,0,0,0.05);
+        }
+
+        h2 { font-size: 20px; font-weight: 600; letter-spacing: -0.5px; margin-bottom: 6px; }
+        p.instrucciones { font-size: 13px; color: #86868B; margin-bottom: 20px; line-height: 1.4; }
+        
+        /* Controles Modernos */
+        .grupo-control { margin-bottom: 16px; }
+        .grupo-control label { font-size: 12px; font-weight: 600; color: #86868B; display: block; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px;}
+        .grupo-control select { 
+            width: 100%; padding: 10px 12px; border-radius: 8px; border: 1px solid #E5E5EA;
+            background-color: #FAFAFA; font-size: 14px; color: #1D1D1F;
+            outline: none; cursor: pointer; transition: 0.2s;
+            appearance: none;
+            -webkit-appearance: none; /* Estilo nativo limpio */
+        }
+        .grupo-control select:hover { background-color: #F0F0F5; }
+        .grupo-control select:focus { border-color: #007AFF; box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.2); }
+
+        .acciones-texto { display: flex; justify-content: space-between; margin-bottom: 8px; }
+        .btn-texto { 
+            background: none; border: none; color: #007AFF; font-size: 13px; font-weight: 500;
+            cursor: pointer; transition: color 0.2s; 
+        }
+        .btn-texto:hover { color: #0056B3; }
+
+        textarea {
+            flex-grow: 1; resize: none; padding: 16px; 
+            /* Fuente de código moderna */
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+            font-size: 13px; border: 1px solid #E5E5EA; border-radius: 12px;
+            background-color: #FAFAFA; color: #1D1D1F; line-height: 1.6; white-space: pre; margin-bottom: 20px;
+            width: 100%; transition: all 0.2s;
+        }
+        textarea:focus { outline: none; border-color: #007AFF; background-color: #FFFFFF; box-shadow: 0 4px 12px rgba(0,0,0,0.03); }
+        
+        /* Botones con efecto "Squish" tipo iOS */
+        .botones-exportar { display: flex; flex-direction: column; gap: 12px; }
+        .btn-primario, .btn-secundario {
+            padding: 14px; font-size: 15px; font-weight: 600; border-radius: 12px; 
+            cursor: pointer; transition: all 0.2s ease; width: 100%; text-align: center; border: none;
+        }
+        .btn-primario { background-color: #007AFF; color: white; box-shadow: 0 4px 12px rgba(0, 122, 255, 0.2); }
+        .btn-primario:hover { background-color: #0066D6; transform: translateY(-1px); }
+        .btn-primario:active { transform: scale(0.97); }
+        
+        .btn-secundario { background-color: #E5E5EA; color: #1D1D1F; }
+        .btn-secundario:hover { background-color: #D1D1D6; }
+        .btn-secundario:active { transform: scale(0.97); }
+
+        /* Barra redimensionadora invisible hasta que pasas el ratón */
+        .resizer {
+            width: 6px; background-color: transparent; border-left: 1px solid transparent;
+            cursor: col-resize; transition: background-color 0.3s; z-index: 15; flex-shrink: 0; 
+        }
+        .resizer:hover, .resizer:active { background-color: rgba(0, 122, 255, 0.5); }
+
+        /* --- PANEL DERECHO --- */
+        .panel-derecho { flex-grow: 1; overflow: auto; padding: 40px; min-width: 0; position: relative; }
+
+        /* Controles de Zoom con Glassmorphism */
+        .controles-zoom {
+            position: fixed; bottom: 30px; right: 30px; display: flex; gap: 6px;
+            /* Cristal Esmerilado */
+            background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            padding: 6px; border-radius: 12px; border: 1px solid rgba(0,0,0,0.05);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.08); z-index: 100;
+        }
+        .controles-zoom button {
+            background-color: transparent; border: none; padding: 8px 14px;
+            font-size: 16px; font-weight: 500; color: #1D1D1F; cursor: pointer; 
+            border-radius: 8px; transition: 0.2s;
+        }
+        .controles-zoom button:hover { background-color: rgba(0,0,0,0.05); }
+        .controles-zoom button:active { background-color: rgba(0,0,0,0.1); transform: scale(0.95); }
+
+        /* --- SISTEMA DE TEMAS --- */
+        #lienzo-arbol {
+            --bg-lienzo: #FFFFFF; --bg-caja: #007AFF; --color-texto: #FFFFFF;
+            --color-borde: #007AFF; --color-linea: #007AFF; --grosor-borde: 0px;
+            --radio-caja: 8px; --sombra-caja: 0 4px 12px rgba(0, 122, 255, 0.2);
+        }
+        #lienzo-arbol.tema-moderno {
+            --bg-caja: #FFFFFF; --color-texto: #1D1D1F; --color-borde: #1D1D1F;
+            --color-linea: #AEAEB2; --grosor-borde: 2px; --radio-caja: 12px;
+            --sombra-caja: 0 8px 24px rgba(0,0,0,0.06);
+        }
+        #lienzo-arbol.tema-oscuro {
+            --bg-lienzo: #1C1C1E; --bg-caja: #2C2C2E; --color-texto: #F2F2F7;
+            --color-borde: #3A3A3C; --color-linea: #636366; --grosor-borde: 2px;
+            --radio-caja: 10px; --sombra-caja: 0 10px 30px rgba(0,0,0,0.4);
+        }
+
+        #zoom-wrapper { display: inline-block; transform-origin: top left; transition: transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1); }
+
+        #lienzo-arbol {
+            background-color: var(--bg-lienzo); padding: 50px; border-radius: 16px;
+            box-shadow: 0 12px 40px rgba(0,0,0,0.06); width: max-content; 
+            margin: 0; text-align: left; transition: background-color 0.4s ease; 
+        }
+
+        /* --- CAJAS Y LÍNEAS --- */
+        .edt-node {
+            background-color: var(--bg-caja); color: var(--color-texto); 
+            border: var(--grosor-borde) solid var(--color-borde);
+            border-radius: var(--radio-caja); box-shadow: var(--sombra-caja);
+            padding: 12px 10px; width: 150px; text-align: center; 
+            font-size: 14px; font-weight: 500; position: relative; z-index: 2; 
+            word-wrap: break-word; flex-shrink: 0; transition: all 0.3s;
+        }
+
+        .edt-root-node {
+            width: auto; min-width: 220px; max-width: 450px;
+            padding: 15px 30px; font-size: 17px; font-weight: 600; letter-spacing: -0.3px;
+        }
+
+        .edt-board { display: flex; flex-direction: column; align-items: center; }
+        .edt-root-stem { width: 2px; height: 30px; background-color: var(--color-linea); transition: 0.3s; }
+        .edt-phases { display: flex; align-items: flex-start; position: relative; }
+        .edt-phase-col { display: flex; flex-direction: column; align-items: flex-start; position: relative; padding: 0 20px; margin-top: 30px; flex-shrink: 0; }
+        
+        .edt-phase-col::before { content: ''; position: absolute; top: -30px; left: 0; width: 100%; height: 2px; background-color: var(--color-linea); transition: 0.3s; }
+        .edt-phase-col:first-child::before { left: 95px; width: calc(100% - 95px); }
+        .edt-phase-col:last-child::before { left: 0; width: 95px; }
+        .edt-phase-col:only-child::before { display: none; }
+        .edt-phase-col::after { content: ''; position: absolute; top: -30px; left: 95px; width: 2px; height: 30px; background-color: var(--color-linea); transition: 0.3s; }
+
+        .edt-tasks { display: flex; flex-direction: column; align-items: flex-start; margin-left: 20px; }
+        .edt-task-item-wrapper { position: relative; display: flex; flex-direction: column; padding-left: 24px; margin-top: 18px; flex-shrink: 0; }
+        
+        .edt-task-item-wrapper::before { content: ''; position: absolute; top: -18px; left: 0; width: 2px; height: calc(100% + 18px); background-color: var(--color-linea); transition: 0.3s; }
+        .edt-task-item-wrapper:last-child::before { height: 42px; }
+        .edt-task-item-wrapper::after { content: ''; position: absolute; top: 24px; left: 0; width: 24px; height: 2px; background-color: var(--color-linea); transition: 0.3s; }
+    </style>
+</head>
+<body>
+
+    <div class="panel-izquierdo" id="panel-izquierdo">
+        <h2>Diagrama EDT</h2>
+        <p class="instrucciones">Escribe para generar. Tu progreso se guarda automáticamente.</p>
+        
+        <div class="grupo-control">
+            <label for="selector-tema">Estilo Visual</label>
+            <select id="selector-tema">
+                <option value="tema-clasico">Clásico (Azul)</option>
+                <option value="tema-moderno">Minimalista (Bordes)</option>
+                <option value="tema-oscuro">Modo Oscuro</option>
+            </select>
+        </div>
+
+        <div class="acciones-texto">
+            <button class="btn-texto" onclick="cargarEjemplo()">Ver ejemplo</button>
+            <button class="btn-texto" onclick="limpiarTexto()" style="color: #FF3B30;">Limpiar todo</button>
+        </div>
+
+        <textarea id="editor-texto" spellcheck="false"></textarea>
+
+        <div class="botones-exportar">
+            <button class="btn-primario" id="btn-copiar" onclick="copiarAlPortapapeles()">Copiar al Portapapeles</button>
+            <button class="btn-secundario" onclick="descargarPNG()">Guardar como PNG</button>
+        </div>
+    </div>
+
+    <div class="resizer" id="drag-resizer"></div>
+
+    <div class="panel-derecho" id="contenedor-scroll">
+        <div id="zoom-wrapper">
+            <div id="lienzo-arbol" class="tema-clasico"></div>
+        </div>
+        
+        <div class="controles-zoom">
+            <button onclick="cambiarZoom(0.1)">+</button>
+            <button onclick="cambiarZoom(-0.1)">-</button>
+            <button onclick="resetZoom()">100%</button>
+        </div>
+    </div>
+
+    <script>
+        const editorTexto = document.getElementById('editor-texto');
+        const lienzoArbol = document.getElementById('lienzo-arbol');
+        const zoomWrapper = document.getElementById('zoom-wrapper');
+        const selectorTema = document.getElementById('selector-tema');
+        const btnCopiar = document.getElementById('btn-copiar');
+        let nivelZoom = 1;
+
+        const textoEjemplo = `Implementación Sistema ERP
+  1.1 Análisis y Requisitos
+    1.1.1 Toma de requerimientos
+    1.1.2 Aprobación del alcance
+  1.2 Diseño de Arquitectura
+    1.2.1 Diseño de Base de Datos
+    1.2.2 Prototipos UI/UX
+  1.3 Desarrollo
+    1.3.1 Módulo Contable
+      1.3.1.1 Backend APIs
+      1.3.1.2 Frontend Vistas
+    1.3.2 Módulo RRHH
+  1.4 Despliegue
+    1.4.1 Pruebas QA
+    1.4.2 Paso a Producción`;
+
+        function cargarDatosGuardados() {
+            const temaGuardado = localStorage.getItem('edt_tema');
+            if (temaGuardado) {
+                selectorTema.value = temaGuardado;
+                lienzoArbol.className = temaGuardado;
+            }
+            const textoGuardado = localStorage.getItem('edt_texto');
+            if (textoGuardado !== null) {
+                editorTexto.value = textoGuardado;
+            } else {
+                editorTexto.value = textoEjemplo; 
+            }
+        }
+
+        selectorTema.addEventListener('change', (e) => { 
+            lienzoArbol.className = e.target.value; 
+            localStorage.setItem('edt_tema', e.target.value); 
+        });
+
+        editorTexto.addEventListener('input', () => {
+            localStorage.setItem('edt_texto', editorTexto.value);
+            renderizarDiagrama();
+        });
+
+        function limpiarTexto() {
+            if(confirm("¿Estás seguro de borrar todo?")) {
+                editorTexto.value = "";
+                localStorage.setItem('edt_texto', "");
+                renderizarDiagrama();
+            }
+        }
+        function cargarEjemplo() {
+            editorTexto.value = textoEjemplo;
+            localStorage.setItem('edt_texto', textoEjemplo);
+            renderizarDiagrama();
+        }
+
+        const resizer = document.getElementById('drag-resizer');
+        const panelIzq = document.getElementById('panel-izquierdo');
+        let isResizing = false;
+
+        resizer.addEventListener('mousedown', (e) => { isResizing = true; document.body.style.cursor = 'col-resize'; e.preventDefault(); });
+        document.addEventListener('mousemove', (e) => {
+            if (!isResizing) return;
+            if(e.clientX > 250 && e.clientX < window.innerWidth - 100) panelIzq.style.width = e.clientX + 'px';
+        });
+        document.addEventListener('mouseup', () => { if (isResizing) { isResizing = false; document.body.style.cursor = 'default'; }});
+
+        function cambiarZoom(cantidad) {
+            nivelZoom += cantidad;
+            if (nivelZoom < 0.3) nivelZoom = 0.3;
+            if (nivelZoom > 2.0) nivelZoom = 2.0;
+            aplicarZoom();
+        }
+        function resetZoom() { nivelZoom = 1; aplicarZoom(); }
+        function aplicarZoom() { zoomWrapper.style.transform = `scale(${nivelZoom})`; }
+
+        function construirArbol(texto) {
+            const lineas = texto.split('\n');
+            const arbol = [];
+            const pila = []; 
+            lineas.forEach(linea => {
+                if (linea.trim() === '') return;
+                const espacios = linea.match(/^\s*/)[0].replace(/\t/g, '  ').length;
+                const nodo = { nombre: linea.trim(), hijos: [] };
+                while (pila.length > 0 && pila[pila.length - 1].nivel >= espacios) { pila.pop(); }
+                if (pila.length > 0) pila[pila.length - 1].nodo.hijos.push(nodo);
+                else arbol.push(nodo); 
+                pila.push({ nivel: espacios, nodo: nodo });
+            });
+            return arbol[0]; 
+        }
+
+        function renderizarTareasVerticales(hijos) {
+            if (!hijos || hijos.length === 0) return '';
+            let html = `<div class="edt-tasks">`;
+            hijos.forEach(hijo => {
+                html += `
+                <div class="edt-task-item-wrapper">
+                    <div class="edt-node">${hijo.nombre}</div>
+                    ${renderizarTareasVerticales(hijo.hijos)}
+                </div>`;
+            });
+            html += `</div>`;
+            return html;
+        }
+
+        function renderizarDiagrama() {
+            const raiz = construirArbol(editorTexto.value);
+            if (!raiz) { lienzoArbol.innerHTML = ''; return; }
+            let html = `
+            <div class="edt-board">
+                <div class="edt-node edt-root-node">${raiz.nombre}</div>
+                <div class="edt-root-stem"></div>
+                <div class="edt-phases">`;
+            if (raiz.hijos) {
+                raiz.hijos.forEach(fase => {
+                    html += `
+                    <div class="edt-phase-col">
+                        <div class="edt-node">${fase.nombre}</div>
+                        ${renderizarTareasVerticales(fase.hijos)}
+                    </div>`;
+                });
+            }
+            html += `</div></div>`;
+            lienzoArbol.innerHTML = html;
+        }
+
+        function obtenerCanvasLimpio() {
+            const zoomActual = zoomWrapper.style.transform;
+            zoomWrapper.style.transform = 'scale(1)'; 
+            return html2canvas(lienzoArbol, { backgroundColor: null, scale: 2 }).then(canvas => {
+                zoomWrapper.style.transform = zoomActual; 
+                return canvas;
+            });
+        }
+
+        function descargarPNG() {
+            obtenerCanvasLimpio().then(canvas => {
+                const a = document.createElement('a');
+                a.href = canvas.toDataURL('image/png');
+                a.download = 'Diagrama_EDT.png';
+                a.click();
+            });
+        }
+
+        function copiarAlPortapapeles() {
+            const textoOriginal = btnCopiar.innerText;
+            btnCopiar.innerText = "Generando imagen...";
+            
+            obtenerCanvasLimpio().then(canvas => {
+                canvas.toBlob(blob => {
+                    try {
+                        navigator.clipboard.write([new ClipboardItem({'image/png': blob})]).then(() => {
+                            btnCopiar.innerText = "¡Copiado! ✔";
+                            btnCopiar.style.backgroundColor = "#34C759"; 
+                            setTimeout(() => {
+                                btnCopiar.innerText = textoOriginal;
+                                btnCopiar.style.backgroundColor = ""; 
+                            }, 2000);
+                        });
+                    } catch (err) {
+                        alert("Tu navegador no soporta el copiado directo de imágenes. Usa 'Guardar como PNG'.");
+                        btnCopiar.innerText = textoOriginal;
+                    }
+                });
+            });
+        }
+
+        cargarDatosGuardados();
+        renderizarDiagrama();
+    </script>
+</body>
+</html>
